@@ -11,7 +11,7 @@ module.exports = function Controller(request, response) {
 
     self.success = function (data) {
         self.result = {code: 1, message: '执行成功', data: data};
-        response.send(200, result);
+        response.send(200, self.result);
     };
 
     self._construct = function (controller) {
