@@ -1,0 +1,22 @@
+{
+  "name": "aza-node",
+  "version": "0.0.1",
+  "description": "api development framework of restify",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lawrence",
+  "license": "ISC",
+  "dependencies": {
+    "cloneextend": "0.0.3",
+    "co": "^4.6.0",
+    "joi": "^8.0.5",
+    "joi-to-json-schema": "^2.1.0",
+    "lodash": "^4.11.1",
+    "moment": "^2.13.0",
+    "morgan": "^1.7.0",
+    "restify": "^4.0.4",
+    "swagger-tools": "0.9.*"
+  }
+}
