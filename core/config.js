@@ -4,7 +4,7 @@
 var Config = {
 
     build: function () {
-        
+
         var fs = require('fs');
         var basePath = process.cwd();
 
@@ -12,7 +12,7 @@ var Config = {
         var path = '';
 
         paths.push(basePath + '/config');
-        paths.push(basePath + '/node_modules/config');
+        paths.push(basePath + '/node_modules/aza-node/config');
 
         aza.config = {};
 
@@ -43,10 +43,14 @@ var Config = {
 
         // Create getConfig helper
         global.getConfig = function (namespace, key) {
-            return aza.config[namespace].get(process.env.NODE_ENV)[key];
+            var conf = aza.config[namespace];
+            if (!conf) return null;
+            return conf.get(process.env.NODE_ENV)[key];
         };
 
         var modules = getConfig('app', 'modules');
+        if (!modules)return;
+        
         var packagesPaths = [];
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];

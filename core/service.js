@@ -10,7 +10,7 @@ module.exports = {
         var paths = [];
         var path = '';
         paths.push(basePath + '/services');
-        paths.push(basePath + '/node_modules/services');
+        paths.push(basePath + '/node_modules/aza-node/services');
         for (var i = 0; i < paths.length; i++) {
             path = paths[i];
             if (fs.existsSync(path)) {
@@ -20,6 +20,7 @@ module.exports = {
         }
 
         var modules = getConfig('app', 'modules');
+        if (!modules)return services;
 
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];

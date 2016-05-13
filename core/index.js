@@ -23,7 +23,7 @@ module.exports = function Aza() {
         //创建服务器
         self.restify = require('restify');
         self.server = self.restify.createServer({
-            name: getConfig('app', 'name')
+            name: getConfig('app', 'name') || 'aza-node-server'
         });
 
         self.server.use(self.restify.CORS());
@@ -53,21 +53,21 @@ module.exports = function Aza() {
                 controllers: './controllers',
                 useStubs: process.env.NODE_ENV === 'dev' ? true : false //Conditionally turn on stubs (mock mode)
             },
-            host: getConfig('server', 'host') + ':' + getConfig('server', 'port'),
+            host: (getConfig('server', 'host') || 'localhost') + ':' + (getConfig('server', 'port') || '3000'),
             basePath: '/',
             info: {
                 contact: {
                     email: getConfig('app', 'contactEmail') || '26221792@qq.com'
                 },
                 description: getConfig('app', 'description'),
-                title: getConfig('app', 'title'),
+                title: getConfig('app', 'title') || 'aza-node',
                 version: getConfig('app', 'version') || '0.1'
             },
         });
     };
 
     self.run = function () {
-        var port = getConfig('server', 'port');
+        var port = getConfig('server', 'port') || 3000;
         self.server.listen(port, function (err) {
             if (err) {
                 require('util').log(err);

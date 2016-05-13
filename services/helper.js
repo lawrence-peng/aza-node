@@ -10,7 +10,7 @@ var Helper = {
 
         global.extend = function (corefile) {
 
-            return require(process.cwd() + '/core/' + corefile + '.js');
+            return require(process.cwd() + '/node_modules/aza-node/core/' + corefile + '.js');
 
         };
 

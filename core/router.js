@@ -114,6 +114,7 @@ var Router = {
         }
 
         var modules = getConfig('app', 'modules');
+        if (!modules)return routes;
 
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];

@@ -17,6 +17,7 @@ var Hook = {
         }
 
         var modules = getConfig('app', 'modules');
+        if (!modules) return out;
 
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];

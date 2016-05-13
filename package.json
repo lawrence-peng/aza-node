@@ -1,11 +1,20 @@
 {
   "name": "aza-node",
-  "version": "0.0.1",
+  "version": "0.2.2",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://git.coding.net/lawrencen/aza-node.git"
+  },
+  "keywords": [
+    "restify",
+    "api desgin",
+    "framework"
+  ],
   "author": "lawrence",
   "license": "ISC",
   "dependencies": {
