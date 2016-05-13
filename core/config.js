@@ -45,12 +45,13 @@ var Config = {
         global.getConfig = function (namespace, key) {
             var conf = aza.config[namespace];
             if (!conf) return null;
+            if (!key) return conf;
             return conf.get(process.env.NODE_ENV)[key];
         };
 
         var modules = getConfig('app', 'modules');
         if (!modules)return;
-        
+
         var packagesPaths = [];
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];

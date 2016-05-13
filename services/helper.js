@@ -26,7 +26,7 @@ var Helper = {
             else {
                 Model = require(process.cwd() + '/packages/' + model[0] + '/models/' + model[1] + '.js');
             }
-
+            console.log(aza.services);
             return new Model(aza.services.mysql.db, aza.services.mysql.DataTypes);
 
         };

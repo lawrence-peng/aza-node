@@ -47,12 +47,12 @@ module.exports = function Aza() {
         var swagger = require('./swagger-ui/');
 
         swagger.configure(self.restify, self.server, {
-            conf: this.conf,
             router: {
                 swaggerUi: '/swagger.json',
                 controllers: './controllers',
                 useStubs: process.env.NODE_ENV === 'dev' ? true : false //Conditionally turn on stubs (mock mode)
             },
+            validateResponse: getConfig('app', 'validateResponse') || true,
             host: (getConfig('server', 'host') || 'localhost') + ':' + (getConfig('server', 'port') || '3000'),
             basePath: '/',
             info: {

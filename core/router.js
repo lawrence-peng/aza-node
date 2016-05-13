@@ -47,9 +47,9 @@ var Router = {
                     Controller = require('./controller.js');
                 }
                 else {
-
+                    
                     if (typeof route.controller.name == 'string') {
-                        Controller = require('../controllers/' + route.controller.name + '.js');
+                        Controller = require(process.cwd() + '/controllers/' + route.controller.name + '.js');
                     }
                     else {
                         Controller = require(process.cwd() + '/modules/' + route.controller.name[0] + '/controllers/' + route.controller.name[1] + '.js');
