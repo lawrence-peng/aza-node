@@ -54,7 +54,7 @@ module.exports.configure = function (restify, server, options) {
                 middleware.swaggerMetadata(),
                 middleware.swaggerValidator({validateResponse: options.validateResponse}),
                 middleware.swaggerRouter(options.router),
-                middleware.swaggerUi({swaggerUiDir: process.cwd() + '/swagger-ui'}));
+                middleware.swaggerUi({swaggerUiDir: process.cwd() + '/node_modules/aza-node/swagger-ui'}));
         });
     });
 };

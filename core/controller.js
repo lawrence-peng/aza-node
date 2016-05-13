@@ -10,7 +10,7 @@ module.exports = function Controller(request, response) {
     self.response = response;
 
     self.success = function (data) {
-        var result = {code: 0, message: '执行成功', data: data};
+        self.result = {code: 1, message: '执行成功', data: data};
         response.send(200, result);
     };
 
