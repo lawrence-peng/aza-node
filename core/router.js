@@ -61,8 +61,8 @@ var Router = {
                 controller._construct(route.controller);
 
                 co(function *() {
-                    yield controller[route.controller.action].call(this);
-
+                    var result = yield controller[route.controller.action].call(this);
+                    controller.success(result);
                 }).catch(function (err) {
                     if (err instanceof Exception) {
                         response.send(200, {code: err.number, message: err.message});

@@ -9,9 +9,9 @@ module.exports = function Controller(request, response) {
     self.request = request;
     self.response = response;
 
-    self.success = function (data) {
-        self.result = {code: 1, message: '执行成功', data: data};
-        response.send(200, self.result);
+    self.success = function (data, code, msg) {
+        var result = {code: (code || 1), message: (msg || '执行成功'), data: data};
+        response.send(200, result);
     };
 
     self._construct = function (controller) {
