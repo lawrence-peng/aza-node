@@ -10,14 +10,18 @@ var Hook = {
         var out = [];
         var paths = [];
         var basePath = process.cwd();
-        var path = basePath + '/hooks.js';
+        var path = basePath + '/node_modules/aza-node/hooks.js';
 
         if (fs.existsSync(path)) {
             paths.push(path);
         }
 
-        var modules = getConfig('app', 'modules');
-        if (!modules) return out;
+        path = basePath + '/hooks.js';
+        if (fs.existsSync(path)) {
+            paths.push(path);
+        }
+
+        var modules = getConfig('app', 'modules') || [];
 
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];
