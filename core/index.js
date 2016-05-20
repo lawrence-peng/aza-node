@@ -9,7 +9,8 @@ module.exports = function Aza() {
 
     self.initialize = function () {
         self.bootstrap();
-        self.compile();
+        self.compileApiDocs();
+        self.registerRouter();
         self.run();
     };
 
@@ -23,7 +24,8 @@ module.exports = function Aza() {
         //创建服务器
         self.restify = require('restify');
         self.server = self.restify.createServer({
-            name: getConfig('app', 'name') || 'aza-node-server'
+            name: getConfig('app', 'name') || 'aza-node-server',
+            version: getConfig('app', 'version') || '1.0.0'
         });
 
         self.server.use(self.restify.CORS());
@@ -31,40 +33,68 @@ module.exports = function Aza() {
         self.server.use(self.restify.queryParser());
         self.server.use(self.restify.jsonp());
         self.server.use(self.restify.bodyParser());
+        self.server.use(self.restify.gzipResponse());
 
         if (process.env.NODE_ENV === 'dev') {
             require('util').log('Debug: Debugging enabled');
             var morgan = require('morgan');
             self.server.use(morgan('dev'));
         }
-        //注册路由
-        self.routes = require('./router').register(self.server);
 
+        self.routerService = require('./router');
+
+        //获取系统路由
+        self.routes = self.routerService.getRoutes();
     };
 
-    self.compile = function () {
-
+    self.compileApiDocs = function () {
         var swagger = require('./swagger-ui/');
-
-        swagger.configure(self.restify, self.server, {
-            router: {
-                swaggerUi: '/swagger.json',
-                controllers: './controllers',
-                useStubs: process.env.NODE_ENV === 'dev' ? true : false //Conditionally turn on stubs (mock mode)
-            },
-            validateResponse: getConfig('app', 'validateResponse') || true,
-            host: (getConfig('server', 'host') || 'localhost') + ':' + (getConfig('server', 'port') || '3000'),
-            basePath: '/',
-            info: {
-                contact: {
-                    email: getConfig('app', 'contactEmail') || '26221792@qq.com'
-                },
-                description: getConfig('app', 'description'),
-                title: getConfig('app', 'title') || 'aza-node',
-                version: getConfig('app', 'version') || '0.1'
-            },
-        });
+        self.apiDocs = swagger.compile(self.routes);
     };
+
+    self.registerRouter = function () {
+
+        var swaggerTools = require('swagger-tools');
+
+        swaggerTools.initializeMiddleware(self.apiDocs, function (middleware) {
+            if (middleware.results && middleware.results.errors) {
+                for (var key in middleware.results.errors) {
+                    console.log('swaggerTools error  :', middleware.results.errors[key]);
+                }
+            }
+
+            var swaggerValidator = middleware.swaggerValidator({validateResponse: getConfig('app', 'validateResponse')});
+
+            ['get', 'put', 'post', 'delete', 'head'].forEach(function (verb) {
+                if (verb === 'delete') {
+                    verb = 'del';
+                }
+
+                self.server[verb](/\/docs(\/.*)?$/,
+                    middleware.swaggerMetadata(),
+                    swaggerValidator,
+                    //middleware.swaggerRouter(options.router),
+                    middleware.swaggerUi({swaggerUiDir: process.cwd() + '/node_modules/aza-node/swagger-ui'})
+                );
+            });
+            self.routerService.register(self.server, [middleware.swaggerMetadata(),swaggerValidator]);
+        });
+
+        self.server.get('/api-docs', function (req, res, next) {
+            res.send(self.apiDocs);
+        });
+
+        self.server.get('/docs', function (req, res, next) {
+            res.redirect('/docs/', next);
+        });
+
+        self.server.get('/', function (req, res, next) {
+            res.header('Location', '/docs');
+            res.send(302);
+            return next(false);
+        });
+
+    }
 
     self.run = function () {
         var port = getConfig('server', 'port') || 3000;

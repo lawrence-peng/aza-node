@@ -7,10 +7,10 @@ var assert = require('assert');
 var _ = require('lodash');
 var convert = require('joi-to-json-schema');
 
-module.exports.create = function (server, options) {
+module.exports.create = function (routes, options) {
     var swagger = new SwaggerDoc();
     var result = swagger.createResponse(options);
-    var paths = swagger.loadRestifyRoutes(server);
+    var paths = swagger.loadRestifyRoutes(routes);
     result.paths = paths;
     return result;
 };
@@ -40,10 +40,10 @@ function SwaggerDoc() {
         return path.replace(/:([^/]+)/g, '{$1}');
     };
 
-    swaggerDoc.loadRestifyRoutes = function (server) {
+    swaggerDoc.loadRestifyRoutes = function (routes) {
         var paths = {};
-        _(server.router.mounts).forEach(function (item) {
-            var spec = item.spec;
+        _(routes).forEach(function (route) {
+            var spec = route;
             if (!paths[spec.path]) {
                 var operation = {};
                 var parameters = [];
@@ -51,13 +51,21 @@ function SwaggerDoc() {
                     var content = spec.parameters[item];
                     if (item === 'body') {
                         swaggerDoc.definitions[content.name] = convert(content.schema);
-                        parameters.push({
+                        var p = {
                             name: content.name,
                             in: item,
                             description: content.description,
-                            required: content.required || true,
-                            schema: {$ref: '#/definitions/' + content.name}
-                        });
+                            required: content.required || true
+                        };
+                        if (content.type === 'array') {
+                            p.schema = {
+                                type: 'array',
+                                items: {$ref: '#/definitions/' + content.name}
+                            };
+                        } else {
+                            p.schema = {$ref: '#/definitions/' + content.name};
+                        }
+                        parameters.push(p);
                     } else {
                         var schema = convert(content);
                         for (var key in schema.properties) {
@@ -85,6 +93,8 @@ function SwaggerDoc() {
                     tags: spec.swagger.tags,
                     summary: spec.swagger.summary,
                     description: spec.swagger.description,
+                    consumes: spec.swagger.consumes || [],
+                    produces: spec.swagger.produces || [],
                     operationId: spec.controller.action,
                     "x-swagger-router-controller": spec.controller.name,
                     parameters: parameters,

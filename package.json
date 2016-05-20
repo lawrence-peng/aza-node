@@ -1,6 +1,6 @@
 {
   "name": "aza-node",
-  "version": "0.2.11",
+  "version": "0.3.8",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {
@@ -11,9 +11,12 @@
     "url": "https://git.coding.net/lawrencen/aza-node.git"
   },
   "keywords": [
+    "nodejs",
     "restify",
     "api desgin",
-    "framework"
+    "api development",
+    "swagger-tools",
+    "nodejs framework"
   ],
   "author": "lawrence",
   "license": "ISC",
@@ -26,6 +29,6 @@
     "moment": "^2.13.0",
     "morgan": "^1.7.0",
     "restify": "^4.0.4",
-    "swagger-tools": "0.9.*"
+    "swagger-tools": "^0.9.16"
   }
 }

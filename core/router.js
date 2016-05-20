@@ -7,8 +7,9 @@ var co = require('co');
 var Exception = extend('exception');
 
 var Router = {
-
-    register: function (server) {
+    routes: [],
+    register: function (server, middlewares) {
+        this.middlewares = middlewares;
         var routes = this.getRoutes();
         for (var i = 0; i < routes.length; i++) {
             if (routes[i].meta.use) {
@@ -37,24 +38,35 @@ var Router = {
         if (route.method == 'delete') {
             route.method = 'del';
         }
+        var path_prefix = getConfig('app', 'api_basePath');
+        if (path_prefix) {
+            route.path = path_prefix + route.path;
+        }
 
-        server[route.method](route, function (request, response, next) {
+        var controllerCache = {};
+
+        server[route.method](route,this.middlewares, function (request, response, next) {
 
             var router = function () {
 
-                var Controller = null;
-                if (!route.controller) {
-                    Controller = require('./controller.js');
-                }
-                else {
-                    
-                    if (typeof route.controller.name == 'string') {
-                        Controller = require(process.cwd() + '/controllers/' + route.controller.name + '.js');
+                var key = route.method + '_' + route.path;
+                var Controller = controllerCache[key];
+                if (!Controller) {
+                    if (!route.controller) {
+                        Controller = require('./controller.js');
                     }
                     else {
-                        Controller = require(process.cwd() + '/modules/' + route.controller.name[0] + '/controllers/' + route.controller.name[1] + '.js');
+
+                        if (typeof route.controller.name == 'string') {
+                            Controller = require(process.cwd() + '/controllers/' + route.controller.name + '.js');
+                        }
+                        else {
+                            Controller = require(process.cwd() + '/modules/' + route.controller.name[0] + '/controllers/' + route.controller.name[1] + '.js');
+                        }
                     }
+                    controllerCache[key] = Controller;
                 }
+
 
                 var controller = new Controller(request, response);
                 aza.currentContext = controller;
@@ -97,6 +109,7 @@ var Router = {
     },
 
     getRoutes: function () {
+        if (this.routes && this.routes.length > 0)return this.routes;
         var routes = [];
         var basePath = process.cwd();
 
@@ -140,6 +153,8 @@ var Router = {
 
             }
         }
+
+        this.routes = routes;
 
         return routes;
 
