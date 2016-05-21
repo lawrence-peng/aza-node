@@ -72,12 +72,12 @@ var Helper = {
                 if (!aza.server) {
                     throw new Error('服务器上下文不存在,不能使用这个function!');
                 }
-                const data = Array.from(arguments);
+                const params = Array.from(arguments);
                 const getEventName = prefix => _.camelCase(`${prefix} ${name || fn.name}`);
-                const skip = skinEventFN ? skinEventFN(data) : false;
-                if (!skip) aza.server.emit(getEventName('before'), data, this);
-                fn.apply(this, data);
-                if (!skip) aza.server.emit(getEventName('after'), data, this);
+                const skip = skinEventFN ? skinEventFN(params) : false;
+                if (!skip) aza.server.emit(getEventName('before'), params, this);
+                fn.apply(this, params);
+                if (!skip) aza.server.emit(getEventName('after'), params, this);
             };
         };
     }

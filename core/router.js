@@ -17,11 +17,25 @@ var Router = {
             }
         }
 
-        server.on('beforeSend', function () {
-            console.log('before send !')
+        server.on('beforeSend', function (args,sender) {
+            if(args.length===1) {
+                var arg = args[0]
+                if (arg instanceof Error) {
+                    arg.body = {
+                        code: arg.code, message: arg.message
+                    }
+                }
+            }else if(args.length===2){
+                var arg = args[1]
+                if (arg instanceof Error) {
+                    arg.body = {
+                        code: arg.code, message: arg.message
+                    }
+                }
+            }
         });
 
-        server.on('afterSend', function (result, sender) {
+        server.on('afterSend', function (args,sender) {
             console.log('after send !');
         });
 

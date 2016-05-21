@@ -32,8 +32,13 @@ module.exports = function Aza() {
         self.server.use(self.restify.authorizationParser());
         self.server.use(self.restify.queryParser());
         self.server.use(self.restify.jsonp());
-        self.server.use(self.restify.bodyParser());
+        self.server.use(self.restify.bodyParser({mapParams:false}));
         self.server.use(self.restify.gzipResponse());
+        self.server.use(function (req,res,next) {
+            res.send = wrapFunc(res.send, null, 'send');
+            res.end = wrapFunc(res.end, null, 'end');
+            next();
+        })
 
         if (process.env.NODE_ENV === 'dev') {
             require('util').log('Debug: Debugging enabled');
@@ -93,6 +98,7 @@ module.exports = function Aza() {
             res.send(302);
             return next(false);
         });
+        
 
     }
 

@@ -7,7 +7,7 @@ module.exports = [
     {
         'type': 'preroute',
         'callback': function (route, request, response) {
-            response.send = wrapFunc(response.send, null, 'send');
+            //response.send = wrapFunc(response.send, null, 'send');
             return true;
         }
 

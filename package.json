@@ -1,6 +1,6 @@
 {
   "name": "aza-node",
-  "version": "0.3.8",
+  "version": "0.3.13",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {
@@ -29,6 +29,6 @@
     "moment": "^2.13.0",
     "morgan": "^1.7.0",
     "restify": "^4.0.4",
-    "swagger-tools": "^0.9.16"
+    "swagger-tools": "*"
   }
 }
