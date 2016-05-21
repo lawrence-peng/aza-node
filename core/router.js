@@ -17,15 +17,15 @@ var Router = {
             }
         }
 
-        server.on('beforeSend', function (args,sender) {
-            if(args.length===1) {
+        server.on('beforeSend', function (args, sender) {
+            if (args.length === 1) {
                 var arg = args[0]
                 if (arg instanceof Error) {
                     arg.body = {
                         code: arg.code, message: arg.message
                     }
                 }
-            }else if(args.length===2){
+            } else if (args.length === 2) {
                 var arg = args[1]
                 if (arg instanceof Error) {
                     arg.body = {
@@ -35,7 +35,7 @@ var Router = {
             }
         });
 
-        server.on('afterSend', function (args,sender) {
+        server.on('afterSend', function (args, sender) {
             console.log('after send !');
         });
 
@@ -59,7 +59,7 @@ var Router = {
 
         var controllerCache = {};
 
-        server[route.method](route,this.middlewares, function (request, response, next) {
+        server[route.method](route, this.middlewares, function (request, response, next) {
 
             var router = function () {
 
@@ -94,7 +94,16 @@ var Router = {
                         response.send(200, {code: err.number, message: err.message});
                     } else {
                         logger.log(err);
-                        response.send(500, {code: err.number, message: err.message});
+                        var body = {};
+                        if (err instanceof Error) {
+                            body.code = err.number;
+                            body.message = err.message;
+                        }
+                        else {
+                            body.code = -1;
+                            body.message = err;
+                        }
+                        response.send(500, body);
                     }
                 });
 
