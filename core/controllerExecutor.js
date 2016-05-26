@@ -26,7 +26,6 @@ module.exports = function ControllerExecutor() {
     };
     self.execute = function *(route, req, res) {
         var controller = self._getController(route, req, res);
-        aza.server.currentContext = controller;
         controller._construct(route.controller);
         var result = yield controller[route.controller.action].call(this);
         return result;

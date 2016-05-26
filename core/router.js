@@ -90,8 +90,9 @@ var Router = {
                 }
                 if (valid) {
                     var result = yield controllerExecutor.execute(route, request, response);
-                    aza.server.currentContext.success(result);
-                    next();
+                    var result = {code: 1, message: '执行成功', data: result};
+                    response.send(200, result);
+                    //next();
                 }
             }).catch(function (err) {
                 handleException(err);
