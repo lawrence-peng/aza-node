@@ -3,8 +3,12 @@
  */
 
 var Hook = {
-
+    Items: {},
     getHooks: function (identifier) {
+
+        if (this.Items[identifier]) {
+            return this.Items[identifier];
+        }
 
         var fs = require('fs');
         var out = [];
@@ -45,11 +49,23 @@ var Hook = {
             }
 
         }
-
+        this.Items[identifier] = out;
         return out;
 
+    },
+    execute: function *(identifier, route, request, response) {
+        var hooks = this.getHooks(identifier);
+        var valid = true;
+        for (var i = 0; i < hooks.length; i++) {
+            var hook = hooks[i];
+            var flag = yield hook.call(this, route, request, response)
+            if (!flag) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
     }
-
 };
 
 module.exports = Hook;

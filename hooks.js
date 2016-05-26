@@ -6,7 +6,7 @@ var _ = require('lodash');
 module.exports = [
     {
         'type': 'preroute',
-        'callback': function (route, request, response) {
+        'callback': function *(route, request, response) {
             //response.send = wrapFunc(response.send, null, 'send');
             return true;
         }

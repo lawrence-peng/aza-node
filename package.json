@@ -1,6 +1,6 @@
 {
   "name": "aza-node",
-  "version": "0.3.14",
+  "version": "0.3.22",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {

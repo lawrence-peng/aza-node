@@ -79,7 +79,7 @@ function SwaggerDoc() {
 
                 }
 
-                if (spec.meta.auth) {
+                /*if (spec.meta.auth) {
                     parameters.push({
                         name: 'Authorization',
                         type: 'string',
@@ -87,7 +87,7 @@ function SwaggerDoc() {
                         in: 'header',
                         description: 'access token or refresh token'
                     });
-                }
+                }*/
 
                 operation[spec.method.toLowerCase()] = {
                     tags: spec.swagger.tags,

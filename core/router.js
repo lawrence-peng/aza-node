@@ -5,6 +5,8 @@ var logger = require('util');
 var fs = require('fs');
 var co = require('co');
 var Exception = extend('exception');
+var hook = extend('hook');
+var ControllerExecutor = extend('controllerExecutor');
 
 var Router = {
     routes: [],
@@ -57,76 +59,43 @@ var Router = {
             route.path = path_prefix + route.path;
         }
 
+        var controllerExecutor = new ControllerExecutor();
+
         var controllerCache = {};
 
         server[route.method](route, this.middlewares, function (request, response, next) {
 
-            var router = function () {
-
-                var key = route.method + '_' + route.path;
-                var Controller = controllerCache[key];
-                if (!Controller) {
-                    if (!route.controller) {
-                        Controller = require('./controller.js');
+            var handleException = function (err) {
+                if (err instanceof Exception) {
+                    response.send(200, {code: err.number, message: err.message});
+                } else {
+                    console.error(err);
+                    var body = {};
+                    if (err instanceof Error) {
+                        body.code = err.number;
+                        body.message = err.message;
                     }
                     else {
-
-                        if (typeof route.controller.name == 'string') {
-                            Controller = require(process.cwd() + '/controllers/' + route.controller.name + '.js');
-                        }
-                        else {
-                            Controller = require(process.cwd() + '/modules/' + route.controller.name[0] + '/controllers/' + route.controller.name[1] + '.js');
-                        }
+                        body.code = -1;
+                        body.message = err;
                     }
-                    controllerCache[key] = Controller;
+                    response.send(500, body);
                 }
-
-
-                var controller = new Controller(request, response);
-                aza.currentContext = controller;
-                controller._construct(route.controller);
-
-                co(function *() {
-                    var result = yield controller[route.controller.action].call(this);
-                    controller.success(result);
-                }).catch(function (err) {
-                    if (err instanceof Exception) {
-                        response.send(200, {code: err.number, message: err.message});
-                    } else {
-                        logger.log(err);
-                        var body = {};
-                        if (err instanceof Error) {
-                            body.code = err.number;
-                            body.message = err.message;
-                        }
-                        else {
-                            body.code = -1;
-                            body.message = err;
-                        }
-                        response.send(500, body);
-                    }
-                });
-
-                next();
             };
 
-            var hook = require('./hook.js');
-            var preRouteHooks = hook.getHooks('preroute');
-            var valid = true;
-
-            for (var i = 0; i < preRouteHooks.length; i++) {
-                hook = preRouteHooks[i];
-                if (!hook.call(this, route, request, response)) {
-                    valid = false;
+            co(function *() {
+                var valid = yield hook.execute('preroute', route, request, response);
+                if (!valid) {
+                    return next();
+                }
+                if (valid) {
+                    var result = yield controllerExecutor.execute(route, request, response);
+                    aza.server.currentContext.success(result);
                     next();
                 }
-            }
-
-            if (valid) {
-
-                router();
-            }
-
+            }).catch(function (err) {
+                handleException(err);
+            });
         });
 
     },

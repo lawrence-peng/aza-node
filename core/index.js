@@ -64,7 +64,7 @@ module.exports = function Aza() {
         swaggerTools.initializeMiddleware(self.apiDocs, function (middleware) {
             if (middleware.results && middleware.results.errors) {
                 for (var key in middleware.results.errors) {
-                    console.log('swaggerTools error  :', middleware.results.errors[key]);
+                    console.error('swaggerTools error  :', middleware.results.errors[key]);
                 }
             }
 
@@ -118,7 +118,7 @@ module.exports = function Aza() {
             });
         } else {
             self.server.on('uncaughtException', function (request, response, route, error) {
-                console.log(error.stack);
+                console.error(error.stack);
             });
         }
     };
