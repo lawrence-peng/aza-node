@@ -90,8 +90,7 @@ var Router = {
                 }
                 if (valid) {
                     var result = yield controllerExecutor.execute(route, request, response);
-                    var result = {code: 1, message: '执行成功', data: result};
-                    response.send(200, result);
+                    response.send(200, {code: 1, message: '执行成功', data: result});
                     //next();
                 }
             }).catch(function (err) {
