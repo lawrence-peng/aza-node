@@ -5,7 +5,7 @@
 module.exports = function ControllerExecutor() {
     const controllerCache = {};
     var self = this;
-    self._getController = function (route, req, res) {
+    self.getController = function (route, req, res) {
         var key = route.method + '_' + route.path;
         var Controller = controllerCache[key];
         if (!Controller) {
@@ -22,12 +22,8 @@ module.exports = function ControllerExecutor() {
             }
             controllerCache[key] = Controller;
         }
-        return new Controller(req, res);
-    };
-    self.execute = function *(route, req, res) {
-        var controller = self._getController(route, req, res);
+        var controller = new Controller(req, res);
         controller._construct(route.controller);
-        var result = yield controller[route.controller.action].call(this);
-        return result;
-    }
+        return controller;
+    };
 };

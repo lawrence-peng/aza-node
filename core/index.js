@@ -32,9 +32,9 @@ module.exports = function Aza() {
         self.server.use(self.restify.authorizationParser());
         self.server.use(self.restify.queryParser());
         self.server.use(self.restify.jsonp());
-        self.server.use(self.restify.bodyParser({mapParams:false}));
+        self.server.use(self.restify.bodyParser({mapParams: false}));
         self.server.use(self.restify.gzipResponse());
-        self.server.use(function (req,res,next) {
+        self.server.use(function (req, res, next) {
             res.send = wrapFunc(res.send, null, 'send');
             res.end = wrapFunc(res.end, null, 'end');
             next();
@@ -82,7 +82,7 @@ module.exports = function Aza() {
                     middleware.swaggerUi({swaggerUiDir: process.cwd() + '/node_modules/aza-node/swagger-ui'})
                 );
             });
-            self.routerService.register(self.server, [middleware.swaggerMetadata(),swaggerValidator]);
+            self.routerService.register(self.server, [middleware.swaggerMetadata(), swaggerValidator]);
         });
 
         self.server.get('/api-docs', function (req, res, next) {
@@ -98,18 +98,19 @@ module.exports = function Aza() {
             res.send(302);
             return next(false);
         });
-        
+
 
     }
 
     self.run = function () {
         var port = getConfig('server', 'port') || 3000;
+        var host = getConfig('server', 'host');
         self.server.listen(port, function (err) {
             if (err) {
                 require('util').log(err);
             } else {
-                require('util').log('Your server is listening on port %d (http://localhost:%d)', port, port);
-                require('util').log('Swagger-ui is available on http://localhost:%d/docs', port);
+                require('util').log('Your server is listening on port %d (http://%s:%d)', port,host, port);
+                require('util').log('Swagger-ui is available on http://%s:%d/docs',host, port);
             }
         });
         if (process.env.NODE_ENV == 'prod') {

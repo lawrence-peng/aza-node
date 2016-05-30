@@ -2,6 +2,7 @@
  * Created by lawrence on 4/15/16.
  */
 
+var Exception = extend('exception');
 module.exports = function Controller(request, response) {
 
     var self = this;
@@ -9,9 +10,29 @@ module.exports = function Controller(request, response) {
     self.request = request;
     self.response = response;
 
-    self.success = function (data, code, msg) {
-        var result = {code: (code || 1), message: (msg || '执行成功'), data: data};
-        response.send(200, result);
+    self.json = function (data, encoding) {
+        var result = {code: 1, message: '执行成功', data: data};
+        response.charSet(encoding || 'utf-8');
+        response.contentType = 'json';
+        return result;
+    };
+
+    self.handleError = function (err) {
+        if (err instanceof Exception) {
+            response.send(200, {code: err.number, message: err.message});
+        } else {
+            console.error(err);
+            var body = {};
+            if (err instanceof Error) {
+                body.code = err.number;
+                body.message = err.message;
+            }
+            else {
+                body.code = -1;
+                body.message = err;
+            }
+            response.send(500, body);
+        }
     };
 
     self._construct = function (controller) {

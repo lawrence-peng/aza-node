@@ -4,9 +4,8 @@
 var logger = require('util');
 var fs = require('fs');
 var co = require('co');
-var Exception = extend('exception');
 var hook = extend('hook');
-var ControllerExecutor = extend('controllerExecutor');
+var ControllerManager = extend('controllerManager');
 
 var Router = {
     routes: [],
@@ -42,7 +41,7 @@ var Router = {
         });
 
         return routes;
-
+        
     },
 
     create: function (server, route) {
@@ -59,29 +58,11 @@ var Router = {
             route.path = path_prefix + route.path;
         }
 
-        var controllerExecutor = new ControllerExecutor();
-
-        var controllerCache = {};
-
+        var controllerManager = new ControllerManager();
+        
         server[route.method](route, this.middlewares, function (request, response, next) {
 
-            var handleException = function (err) {
-                if (err instanceof Exception) {
-                    response.send(200, {code: err.number, message: err.message});
-                } else {
-                    console.error(err);
-                    var body = {};
-                    if (err instanceof Error) {
-                        body.code = err.number;
-                        body.message = err.message;
-                    }
-                    else {
-                        body.code = -1;
-                        body.message = err;
-                    }
-                    response.send(500, body);
-                }
-            };
+            var controller = controllerManager.getController(route, request, response);
 
             co(function *() {
                 var valid = yield hook.execute('preroute', route, request, response);
@@ -89,12 +70,20 @@ var Router = {
                     return next();
                 }
                 if (valid) {
-                    var result = yield controllerExecutor.execute(route, request, response);
-                    response.send(200, {code: 1, message: '执行成功', data: result});
-                    //next();
+                    if (route.controller.executing) {
+                        yield controller[route.controller.executing].call(this);
+                    }
+
+                    var data = yield controller[route.controller.action].call(this);
+                    var result = controller.json(data);
+
+                    if(route.controller.executed){
+                        yield controller[route.controller.executed].call(this);
+                    }
+                    response.send(200, result);
                 }
             }).catch(function (err) {
-                handleException(err);
+                controller.handleError(err);
             });
         });
 
