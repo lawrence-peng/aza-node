@@ -31,14 +31,29 @@ module.exports = function Aza() {
         self.server.use(self.restify.CORS());
         self.server.use(self.restify.authorizationParser());
         self.server.use(self.restify.queryParser());
+        self.server.use(self.restify.acceptParser(self.server.acceptable));
         self.server.use(self.restify.jsonp());
         self.server.use(self.restify.bodyParser({mapParams: false}));
         self.server.use(self.restify.gzipResponse());
+        self.server.use(self.restify.dateParser());
+        self.server.use(self.restify.requestExpiry());
+
         self.server.use(function (req, res, next) {
             res.send = wrapFunc(res.send, null, 'send');
             res.end = wrapFunc(res.end, null, 'end');
             next();
-        })
+        });
+
+        self.server.use(self.restify.conditionalRequest());
+
+        if(getConfig('app','auditLogger')) {
+            self.server.on('after', self.restify.auditLogger({
+                log: bunyan.createLogger({
+                    name: 'audit',
+                    stream: process.stdout
+                })
+            }));
+        }
 
         if (process.env.NODE_ENV === 'dev') {
             require('util').log('Debug: Debugging enabled');

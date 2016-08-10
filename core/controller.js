@@ -21,7 +21,8 @@ module.exports = function Controller(request, response) {
         if (err instanceof Exception) {
             response.send(200, {code: err.number, message: err.message});
         } else {
-            console.error(err);
+            console.error(JSON.parse(JSON.stringify(err, ['stack', 'message', 'inner'], 2)))
+            //console.error(err);
             var body = {};
             if (err instanceof Error) {
                 body.code = err.number;
