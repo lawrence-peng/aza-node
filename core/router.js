@@ -41,7 +41,7 @@ var Router = {
         });
 
         return routes;
-        
+
     },
 
     create: function (server, route) {
@@ -59,7 +59,7 @@ var Router = {
         }
 
         var controllerManager = new ControllerManager();
-        
+
         server[route.method](route, this.middlewares, function (request, response, next) {
 
             var controller = controllerManager.getController(route, request, response);
@@ -71,14 +71,26 @@ var Router = {
                 }
                 if (valid) {
                     if (route.controller.executing) {
-                        yield controller[route.controller.executing].call(this);
+                        var executingFunc = controller[route.controller.executing];
+                        if (executingFunc) {
+                            throw new Error(route.path + '中的[' + route.controller.executing + ']不存在!')
+                        }
+                        yield executingFunc.call(this);
                     }
 
-                    var data = yield controller[route.controller.action].call(this);
+                    var actionFunc = controller[route.controller.action];
+                    if (actionFunc) {
+                        throw new Error(route.path + '中的[' + route.controller.action + ']不存在!')
+                    }
+                    var data = yield actionFunc.call(this);
                     var result = controller.json(data);
 
-                    if(route.controller.executed){
-                        yield controller[route.controller.executed].call(this);
+                    if (route.controller.executed) {
+                        var executedFunc = controller[route.controller.executed];
+                        if (executedFunc) {
+                            throw new Error(route.path + '中的[' + route.controller.executed + ']不存在!')
+                        }
+                        yield executedFunc.call(this);
                     }
                     response.send(200, result);
                 }

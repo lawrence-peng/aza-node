@@ -4,7 +4,7 @@
 'use strict';
 
 var _ = require('lodash');
-var convert = require('joi-to-json-schema');
+var convert = require('./joi-to-json-schema');
 
 var Definition = {
 

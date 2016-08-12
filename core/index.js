@@ -36,7 +36,9 @@ module.exports = function Aza() {
         self.server.use(self.restify.bodyParser({mapParams: false}));
         self.server.use(self.restify.gzipResponse());
         self.server.use(self.restify.dateParser());
-        self.server.use(self.restify.requestExpiry());
+        self.server.use(self.restify.requestExpiry({
+            header: 'x-request-expiry-time'
+        }));
 
         self.server.use(function (req, res, next) {
             res.send = wrapFunc(res.send, null, 'send');

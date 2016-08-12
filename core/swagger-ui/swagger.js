@@ -5,7 +5,7 @@
 
 var assert = require('assert');
 var _ = require('lodash');
-var convert = require('joi-to-json-schema');
+var convert = require('./joi-to-json-schema');
 
 module.exports.create = function (routes, options) {
     var swagger = new SwaggerDoc();
@@ -49,10 +49,17 @@ function SwaggerDoc() {
                 var parameters = [];
                 for (var item in spec.parameters) {
                     var content = spec.parameters[item];
+                    var schemaName = content.name;
                     if (item === 'body') {
-                        swaggerDoc.definitions[content.name] = convert(content.schema);
+                        if (content.schema && content.schema.isJoi) {
+                            swaggerDoc.definitions[content.name] = convert(content.schema);
+                        }
+                        else {
+                            schemaName = content.schema || content.name;
+                        }
+
                         var p = {
-                            name: content.name,
+                            name: item,
                             in: item,
                             description: content.description,
                             required: content.required || true
@@ -60,10 +67,10 @@ function SwaggerDoc() {
                         if (content.type === 'array') {
                             p.schema = {
                                 type: 'array',
-                                items: {$ref: '#/definitions/' + content.name}
+                                items: {$ref: '#/definitions/' + schemaName}
                             };
                         } else {
-                            p.schema = {$ref: '#/definitions/' + content.name};
+                            p.schema = {$ref: '#/definitions/' + schemaName};
                         }
                         parameters.push(p);
                     } else {
@@ -80,14 +87,14 @@ function SwaggerDoc() {
                 }
 
                 /*if (spec.meta.auth) {
-                    parameters.push({
-                        name: 'Authorization',
-                        type: 'string',
-                        required: true,
-                        in: 'header',
-                        description: 'access token or refresh token'
-                    });
-                }*/
+                 parameters.push({
+                 name: 'Authorization',
+                 type: 'string',
+                 required: true,
+                 in: 'header',
+                 description: 'access token or refresh token'
+                 });
+                 }*/
 
                 operation[spec.method.toLowerCase()] = {
                     tags: spec.swagger.tags,
