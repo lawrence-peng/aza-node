@@ -1,11 +1,12 @@
 /**
  * Created by lawrence on 4/14/16.
  */
-var logger = require('util');
+'use strict'
+
+var restify = require('restify');
 var fs = require('fs');
 var co = require('co');
-var hook = extend('hook');
-var ControllerManager = extend('controllerManager');
+var controllerManager = require('./controllerManager');
 
 var Router = {
     routes: [],
@@ -17,39 +18,11 @@ var Router = {
                 this.create(server, routes[i]);
             }
         }
-
-        server.on('beforeSend', function (args, sender) {
-            if (args.length === 1) {
-                var arg = args[0]
-                if (arg instanceof Error) {
-                    arg.body = {
-                        code: arg.code, message: arg.message
-                    }
-                }
-            } else if (args.length === 2) {
-                var arg = args[1]
-                if (arg instanceof Error) {
-                    arg.body = {
-                        code: arg.code, message: arg.message
-                    }
-                }
-            }
-        });
-
-        server.on('afterSend', function (args, sender) {
-            console.log('after send !');
-        });
-
         return routes;
-
     },
 
     create: function (server, route) {
-
-        self = this;
-
-        logger.log('Router: Registering route [' + route.method.toUpperCase() + ' ' + route.path + ']');
-
+        let self = this;
         if (route.method == 'delete') {
             route.method = 'del';
         }
@@ -58,53 +31,31 @@ var Router = {
             route.path = path_prefix + route.path;
         }
 
-        var controllerManager = new ControllerManager();
-
         server[route.method](route, this.middlewares, function (request, response, next) {
-
-            var controller = controllerManager.getController(route, request, response);
-
             co(function *() {
-                var valid = yield hook.execute('preroute', route, request, response);
-                if (!valid) {
-                    return next();
+                var controller = controllerManager.getControllers()[route.controller.name];
+                if (!controller) {
+                    throw new Error('请求路径:' + route.path + '中的controller:[' + route.controller.name + ']不存在!')
                 }
-                if (valid) {
-                    if (route.controller.executing) {
-                        var executingFunc = controller[route.controller.executing];
-                        if (executingFunc) {
-                            throw new Error(route.path + '中的[' + route.controller.executing + ']不存在!')
-                        }
-                        yield executingFunc.call(this);
-                    }
-
-                    var actionFunc = controller[route.controller.action];
-                    if (actionFunc) {
-                        throw new Error(route.path + '中的[' + route.controller.action + ']不存在!')
-                    }
-                    var data = yield actionFunc.call(this);
-                    var result = controller.json(data);
-
-                    if (route.controller.executed) {
-                        var executedFunc = controller[route.controller.executed];
-                        if (executedFunc) {
-                            throw new Error(route.path + '中的[' + route.controller.executed + ']不存在!')
-                        }
-                        yield executedFunc.call(this);
-                    }
-                    response.send(200, result);
+                var actionFunc = controller[route.controller.action];
+                if (!actionFunc) {
+                    throw new Error('请求路径:' + route.path + '中的controller:[' + route.controller.name + ']不存在[' + route.controller.action + ']的action!')
                 }
+                var data = yield actionFunc.call(this);
+                var result = {code: 1, message: '执行成功', data: data};
+                response.send(200, result);
+                return next();
             }).catch(function (err) {
-                controller.handleError(err);
+                console.error(err)
+                return next(new restify.InternalServerError('接口异常!'));
             });
         });
-
     },
 
-    getRoutes: function () {
+    getRoutes: function (cwd) {
         if (this.routes && this.routes.length > 0)return this.routes;
         var routes = [];
-        var basePath = process.cwd();
+        var basePath = cwd || process.cwd();
 
         var paths = [];
         var path = '';
@@ -114,7 +65,7 @@ var Router = {
         for (var i = 0; i < paths.length; i++) {
             path = paths[i];
             if (fs.existsSync(path)) {
-                files = fs.readdirSync(path);
+                let files = fs.readdirSync(path);
                 buildRoutes(files);
             }
         }
@@ -126,7 +77,7 @@ var Router = {
             var module = modules[i];
             path = basePath + '/modules/' + module + '/routes';
             if (fs.existsSync(path)) {
-                files = fs.readdirSync(path);
+                let files = fs.readdirSync(path);
                 buildRoutes(files);
             }
         }

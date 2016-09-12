@@ -8,7 +8,6 @@ var fs = require('fs');
 var swaggerDoc = require('./swagger');
 
 module.exports.compile = function (routes, options) {
-    var self = this;
     var defaultOpt = {
         /*
          router: {
@@ -28,13 +27,14 @@ module.exports.compile = function (routes, options) {
             version: getConfig('app', 'version') || '1.0.0'
         }
     };
-    self.options = _.assign(defaultOpt, options);
 
-    var doc = swaggerDoc.create(routes, self.options);
+    options = _.assign(defaultOpt, options);
+
+    var doc = swaggerDoc.create(routes, options);
 
     if (process.env.NODE_ENV === 'dev') {
         fs.writeFileSync('./api-docs.json', JSON.stringify(doc));
     }
-    
+
     return doc;
 };

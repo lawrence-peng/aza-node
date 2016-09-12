@@ -2,9 +2,9 @@
  * Created by lawrence on 4/14/16.
  */
 module.exports = {
-    register: function () {
+    register: function (servicePath) {
         var fs = require('fs');
-        var basePath = process.cwd();
+        var basePath = servicePath || process.cwd();
 
         var services = {};
         var paths = [];
@@ -14,7 +14,7 @@ module.exports = {
         for (var i = 0; i < paths.length; i++) {
             path = paths[i];
             if (fs.existsSync(path)) {
-                files = fs.readdirSync(path);
+                let files = fs.readdirSync(path);
                 initService(path, files);
             }
         }
@@ -26,7 +26,7 @@ module.exports = {
             var module = modules[i];
             path = basePath + '/modules/' + module + '/services';
             if (fs.existsSync(path)) {
-                files = fs.readdirSync(path);
+                let files = fs.readdirSync(path);
                 initService(path, files);
             }
         }
@@ -37,12 +37,13 @@ module.exports = {
 
                 var index = service_files[j];
                 var filename = index.replace(/^.*[\\\/]/, '');
-                var extension = filename.split('.').pop();
+                var arrTemp = filename.split('.');
+                var extension = arrTemp.pop();
 
                 if (extension == 'js') {
-                    index = index.substring(index.lastIndexOf('/') + 1, index.lastIndexOf('.'));
-                    services[index] = require(service_path + '/' + service_files[j]);
-                    services[index].init();
+                    var key = arrTemp.pop();
+                    services[key] = require(service_path + '/' + index);
+                    services[key].init();
                 }
 
             }

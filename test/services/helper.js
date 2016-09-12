@@ -6,6 +6,10 @@ var Helper = {
 
     init: function () {
 
+        global.extend = function (corefile) {
+            return require(process.cwd() + '/node_modules/aza-node/core/' + corefile + '.js');
+        };
+
         global.getUTCStamp = function () {
             return Math.floor((new Date()).getTime() / 1000);
         };

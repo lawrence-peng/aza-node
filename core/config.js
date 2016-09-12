@@ -2,19 +2,18 @@
  * Created by lawrence on 5/12/16.
  */
 var Config = {
-
-    build: function () {
+    build: function (configPath) {
 
         var fs = require('fs');
-        var basePath = process.cwd();
+        var basePath = configPath || process.cwd();
 
         var paths = [];
         var path = '';
 
         paths.push(basePath + '/config');
-        paths.push(basePath + '/node_modules/aza-node/config');
+        //paths.push(basePath + '/node_modules/aza-node/config');
 
-        aza.config = {};
+        var config = {};
 
         createConfig(paths);
 
@@ -30,11 +29,11 @@ var Config = {
 
                     var index = config_files[j];
                     var filename = index.replace(/^.*[\\\/]/, '');
-                    var extension = filename.split('.').pop();
-
+                    var arrTemp = filename.split('.');
+                    var extension = arrTemp.pop();
                     if (extension == 'js') {
-                        index = index.substring(index.lastIndexOf('/') + 1, index.lastIndexOf('.'));
-                        aza.config[index] = require(path + '/' + config_files[j]);
+                        var key = arrTemp.pop();
+                        config[key] = require(path + '/' + index);
                     }
 
                 }
@@ -43,7 +42,7 @@ var Config = {
 
         // Create getConfig helper
         global.getConfig = function (namespace, key) {
-            var conf = aza.config[namespace];
+            var conf = config[namespace];
             if (!conf) return null;
             if (!key) return conf;
             return conf.get(process.env.NODE_ENV)[key];
@@ -55,7 +54,6 @@ var Config = {
         var packagesPaths = [];
         for (var i = 0; i < modules.length; i++) {
             var module = modules[i];
-            require('util').log('Package enabled: ' + module);
             path = basePath + '/modules/' + module + '/config';
             if (fs.existsSync(path)) {
                 packagesPaths.push(path);
@@ -63,6 +61,8 @@ var Config = {
         }
 
         createConfig(packagesPaths);
+
+        return config;
 
     }
 };

@@ -24,7 +24,7 @@ function SwaggerDoc() {
     swaggerDoc.createResponse = function (options) {
         assert.ok(options.host, 'Swagger not initialized! Host of configure required!');
 
-        swaggerDoc.definitions = require('./definition').getDefinitions(options.conf);
+        swaggerDoc.definitions = require('./definition').getDefinitions(options.cwd);
         return {
             swagger: SWAGGER_VERSION,
             info: options.info,

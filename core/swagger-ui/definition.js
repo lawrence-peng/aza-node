@@ -8,10 +8,10 @@ var convert = require('./joi-to-json-schema');
 
 var Definition = {
 
-    getDefinitions: function (conf) {
+    getDefinitions: function (cwd) {
         var out = {};
         var fs = require('fs');
-        var basePath = process.cwd();
+        var basePath = cwd || process.cwd();
         var path = basePath + '/definitions';
         var files = fs.readdirSync(path);
 
