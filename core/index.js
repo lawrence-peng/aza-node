@@ -3,12 +3,16 @@
  */
 "use strict"
 var path = require('path');
+
+
 module.exports = function Aza(options) {
     var self = this;
+    self.BizError = require('./BizError').BizError;
+
     options = options || {};
     self.initialize = function () {
         self.bootstrap(options);
-        let apiDocs = self.compileApiDocs(options);
+        var apiDocs = self.compileApiDocs(options);
         self.registerRouter(apiDocs);
         self.run();
     };
@@ -18,7 +22,7 @@ module.exports = function Aza(options) {
         //加载配置
         require('./config').build(options.cwd);
         //注册服务
-        require('./service').register(options.cwd);
+        self.services = require('./service').register(options.cwd);
 
         require('./controllerManager').register(options.cwd);
 
@@ -31,6 +35,8 @@ module.exports = function Aza(options) {
 
         self.server.use(self.restify.CORS());
         self.server.use(self.restify.jsonp());
+        //注册中间件
+        require('./middleware').register(self.server, options.cwd);
 
         options.bootstrap && options.bootstrap()
 
@@ -73,19 +79,21 @@ module.exports = function Aza(options) {
                 if (verb === 'delete') {
                     verb = 'del';
                 }
+                var basePath = __dirname.replace('/core', '');
+                var swaggerUIPath = path.join(basePath, 'swagger-ui');
 
                 self.server[verb](/\/docs(\/.*)?$/,
                     middleware.swaggerMetadata(),
                     swaggerValidator,
                     //middleware.swaggerRouter(options.router),
-                    middleware.swaggerUi({swaggerUiDir: path.join(__dirname, 'swagger-ui')})
+                    middleware.swaggerUi({swaggerUiDir: swaggerUIPath})
                 );
             });
             require('./router').register(self.server, [middleware.swaggerMetadata(), swaggerValidator]);
         });
 
         self.server.get('/api-docs', function (req, res, next) {
-            res.send(self.apiDocs);
+            res.send(apiDocs);
         });
 
         self.server.get('/docs', function (req, res, next) {

@@ -30,7 +30,7 @@ describe('Aza Framework', function () {
                 if (err) {
                     //console.error(err);
                 }
-                assert.equal(body.message,'接口异常!')
+                assert.equal(body.message,'增加失败!')
                 done()
             });
         });

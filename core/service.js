@@ -14,7 +14,7 @@ module.exports = {
         for (var i = 0; i < paths.length; i++) {
             path = paths[i];
             if (fs.existsSync(path)) {
-                let files = fs.readdirSync(path);
+                var files = fs.readdirSync(path);
                 initService(path, files);
             }
         }
@@ -26,7 +26,7 @@ module.exports = {
             var module = modules[i];
             path = basePath + '/modules/' + module + '/services';
             if (fs.existsSync(path)) {
-                let files = fs.readdirSync(path);
+                var files = fs.readdirSync(path);
                 initService(path, files);
             }
         }

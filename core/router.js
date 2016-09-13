@@ -22,7 +22,7 @@ var Router = {
     },
 
     create: function (server, route) {
-        let self = this;
+        var self = this;
         if (route.method == 'delete') {
             route.method = 'del';
         }
@@ -41,12 +41,22 @@ var Router = {
                 if (!actionFunc) {
                     throw new Error('请求路径:' + route.path + '中的controller:[' + route.controller.name + ']不存在[' + route.controller.action + ']的action!')
                 }
-                var data = yield actionFunc.call(this);
+                var data = yield actionFunc.call({
+                    request,
+                    response,
+                    next,
+                    sender: this,
+                    requestParams: request.swagger.params
+                });
                 var result = {code: 1, message: '执行成功', data: data};
                 response.send(200, result);
                 return next();
             }).catch(function (err) {
                 console.error(err)
+
+                if(err instanceof  aza.BizError){
+                    return next(err);
+                }
                 return next(new restify.InternalServerError('接口异常!'));
             });
         });
@@ -65,7 +75,7 @@ var Router = {
         for (var i = 0; i < paths.length; i++) {
             path = paths[i];
             if (fs.existsSync(path)) {
-                let files = fs.readdirSync(path);
+                var files = fs.readdirSync(path);
                 buildRoutes(files);
             }
         }
@@ -77,7 +87,7 @@ var Router = {
             var module = modules[i];
             path = basePath + '/modules/' + module + '/routes';
             if (fs.existsSync(path)) {
-                let files = fs.readdirSync(path);
+                var files = fs.readdirSync(path);
                 buildRoutes(files);
             }
         }
