@@ -1,8 +1,11 @@
+'use strict'
 /**
  * Created by lawrence on 4/15/16.
  */
+
 var co = require('co');
 var restify = require('restify');
+
 var Middleware = {
     register: function (server, cwd) {
         var fs = require('fs');

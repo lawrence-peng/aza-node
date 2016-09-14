@@ -32,7 +32,8 @@ var Helper = {
         global.hash = function (string) {
             var HmacSHA1 = require('crypto-js/hmac-sha1');
             var EncBase64 = require('crypto-js/enc-base64');
-            return HmacSHA1(string, getConfig('app', 'key')).toString(EncBase64);
+            var key = getConfig('app', 'key') || 'aza-node-restapi'
+            return HmacSHA1(string, key).toString(EncBase64);
         };
 
         global.wrapFunc = function (fn, skinEventFN, name) {
