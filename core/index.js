@@ -44,7 +44,7 @@ module.exports = function Aza(options) {
 
         options.bootstrap && options.bootstrap();
 
-        //统一处理next(err)时输出的格式
+        //统一处理非BizError时,next(err)输出的格式
         self.server.on('beforeSend', function (args, sender) {
             var arg;
             if (args.length === 1) {
@@ -52,9 +52,12 @@ module.exports = function Aza(options) {
             } else if (args.length === 2) {
                 arg = args[1]
             }
-            if (arg instanceof Error) {
-                console.error(arg);
-                arg = new self.restify.InternalServerError('接口异常!')
+            if (!arg instanceof aza.BizError) {
+                console.error(JSON.stringify(arg));
+                arg.body = {
+                    "code": "InternalServerError",
+                    "message": "接口异常!"
+                };
             }
         });
 
