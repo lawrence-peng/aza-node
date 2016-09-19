@@ -52,8 +52,8 @@ module.exports = function Aza(options) {
             } else if (args.length === 2) {
                 arg = args[1]
             }
-            if (!arg instanceof aza.BizError) {
-                console.error(JSON.stringify(arg));
+            if (arg instanceof aza.BizError != true) {
+                console.error(arg);
                 arg.body = {
                     "code": "InternalServerError",
                     "message": "接口异常!"
