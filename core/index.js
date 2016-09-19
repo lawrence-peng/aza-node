@@ -35,10 +35,28 @@ module.exports = function Aza(options) {
 
         self.server.use(self.restify.CORS());
         self.server.use(self.restify.jsonp());
+        self.server.use(function (req, res, next) {
+            res.send = wrapFunc(res.send, null, 'send');
+            next();
+        });
         //注册中间件
         require('./middleware').register(self.server, options.cwd);
 
-        options.bootstrap && options.bootstrap()
+        options.bootstrap && options.bootstrap();
+
+        //统一处理next(err)时输出的格式
+        self.server.on('beforeSend', function (args, sender) {
+            var arg;
+            if (args.length === 1) {
+                arg = args[0]
+            } else if (args.length === 2) {
+                arg = args[1]
+            }
+            if (arg instanceof Error) {
+                console.error(arg);
+                arg = new self.restify.InternalServerError('接口异常!')
+            }
+        });
 
         if (process.env.NODE_ENV === 'development') {
             self.server.on('after', self.restify.auditLogger({
