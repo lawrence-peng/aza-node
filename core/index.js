@@ -52,7 +52,8 @@ module.exports = function Aza(options) {
             } else if (args.length === 2) {
                 arg = args[1]
             }
-            if (arg instanceof aza.BizError != true) {
+            if (arg instanceof aza.BizError)return;
+            if (arg instanceof Error) {
                 console.error(arg);
                 arg.body = {
                     "code": "InternalServerError",
