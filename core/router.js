@@ -50,7 +50,11 @@ var Router = {
                 });
                 var result = {code: 1, message: '执行成功', data: data};
                 if (route.customResponse) {
-                    result = data;
+                    if (route.customResponse instanceof Function) {
+                        result = route.customResponse(data);
+                    } else {
+                        result = data;
+                    }
                 }
                 response.send(200, result);
                 return next();
