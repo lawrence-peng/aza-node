@@ -49,11 +49,14 @@ var Router = {
                     requestParams: request.swagger.params
                 });
                 var result = {code: 1, message: '执行成功', data: data};
+                if (route.customResponse) {
+                    result = data;
+                }
                 response.send(200, result);
                 return next();
             }).catch(function (err) {
                 console.error(err)
-                if(err instanceof aza.BizError){
+                if (err instanceof aza.BizError) {
                     return next(err);
                 }
                 return next(new restify.InternalServerError('接口异常!'));
