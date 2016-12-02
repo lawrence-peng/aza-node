@@ -63,7 +63,7 @@ module.exports = function Aza() {
           "message": arg.message
         };
       } else if (arg instanceof Error) {
-        console.error(arg);
+        console.error('beforeSend:', arg);
         arg.body = {
           "code": "InternalServerError",
           "message": "接口异常!"
