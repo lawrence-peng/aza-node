@@ -31,23 +31,17 @@ module.exports = function Aza() {
       name: getConfig('app', 'name') || 'aza-node-server',
       version: getConfig('app', 'version') || '1.0.0'
     });
-    if (options.exposeHeaders) {
-      self.server.use(self.restify.CORS({
-        origins: ['*'],
-        headers: [options.exposeHeaders] // sets expose-headers
-      }));
-    } else {
-      self.server.use(self.restify.CORS());
-    }
-    self.server.use(self.restify.jsonp());
     self.server.use(function (req, res, next) {
       res.send = wrapFunc(res.send, null, 'send');
       next();
     });
+    self.server.use(self.restify.jsonp());
+
+    options.bootstrap && options.bootstrap(self.restify, self.server);
+
     //注册中间件
     require('./middleware').register(self.server, options.cwd);
 
-    options.bootstrap && options.bootstrap();
 
     //统一处理非BizError时,next(err)输出的格式
     self.server.on('beforeSend', function (args, sender) {
