@@ -56,6 +56,9 @@ module.exports = function Aza() {
           "code": 0,
           "message": arg.message
         };
+        if (arg.data) {
+          arg.body.data = arg.data
+        }
       } else if (arg instanceof Error) {
         console.error('beforeSend:', arg);
         arg.body = {

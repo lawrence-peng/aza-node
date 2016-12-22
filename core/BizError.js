@@ -15,10 +15,11 @@ error.BaseError = function () {
 };
 util.inherits(error.BaseError, Error);
 
-error.BizError = function (message, status) {
+error.BizError = function (message, data, status) {
   error.BaseError.apply(this, arguments);
   this.name = 'AzaBizError';
   this.statusCode = status || 200;
   this.message = message;
+  this.data = data;
 };
 util.inherits(error.BizError, error.BaseError);

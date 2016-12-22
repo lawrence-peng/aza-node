@@ -43,73 +43,75 @@ function SwaggerDoc() {
   swaggerDoc.loadRestifyRoutes = function (routes) {
     var paths = {};
     _(routes).forEach(function (route) {
-      if (!route.meta.admin) {
+      if (!route.meta.admin || !route.meta.hide) {
         var spec = route;
-        if (!paths[spec.path]) {
-          var operation = {};
-          var parameters = [];
-          for (var item in spec.parameters) {
-            var content = spec.parameters[item];
-            var schemaName = content.name;
-            if (item === 'body') {
-              if (content.schema && content.schema.isJoi) {
-                swaggerDoc.definitions[content.name] = convert(content.schema);
-              } else {
-                schemaName = content.schema || content.name;
-              }
+        var pathName = swaggerDoc.convertToSwagger(spec.path);
+        var flag = paths[pathName] && paths[pathName][spec.method.toLowerCase()];
+        assert.ok(!flag, 'Swagger doc method:' + spec.method + ',path:' + spec.path + ' exist!');
+        if (!paths[pathName]) {
+          paths[pathName] = {};
+        }
 
-              var p = {
-                name: item,
-                in: item,
-                description: content.description,
-                required: content.required || true
-              };
-              if (content.type === 'array') {
-                p.schema = {
-                  type: 'array',
-                  items: { $ref: '#/definitions/' + schemaName }
-                };
-              } else {
-                p.schema = { $ref: '#/definitions/' + schemaName };
-              }
-              parameters.push(p);
+        var parameters = [];
+        for (var item in spec.parameters) {
+          var content = spec.parameters[item];
+          var schemaName = content.name;
+          if (item === 'body') {
+            if (content.schema && content.schema.isJoi) {
+              swaggerDoc.definitions[content.name] = convert(content.schema);
             } else {
-              var schema = convert(content);
-              for (var key in schema.properties) {
-                var obj = schema.properties[key];
-                obj.in = item;
-                obj.name = key;
-                obj.required = _.indexOf(schema.required, key) >= 0;
-                parameters.push(obj);
-              }
+              schemaName = content.schema || content.name;
             }
 
+            var p = {
+              name: item,
+              in: item,
+              description: content.description,
+              required: content.required || true
+            };
+            if (content.type === 'array') {
+              p.schema = {
+                type: 'array',
+                items: { $ref: '#/definitions/' + schemaName }
+              };
+            } else {
+              p.schema = { $ref: '#/definitions/' + schemaName };
+            }
+            parameters.push(p);
+          } else {
+            var schema = convert(content);
+            for (var key in schema.properties) {
+              var obj = schema.properties[key];
+              obj.in = item;
+              obj.name = key;
+              obj.required = _.indexOf(schema.required, key) >= 0;
+              parameters.push(obj);
+            }
           }
 
-          /*if (spec.meta.auth) {
-           parameters.push({
-           name: 'Authorization',
-           type: 'string',
-           required: true,
-           in: 'header',
-           description: 'access token or refresh token'
-           });
-           }*/
-
-          operation[spec.method.toLowerCase()] = {
-            tags: spec.swagger.tags,
-            summary: spec.swagger.summary,
-            description: spec.swagger.description,
-            consumes: spec.swagger.consumes || [],
-            produces: spec.swagger.produces || [],
-            operationId: spec.controller.action,
-            "x-swagger-router-controller": spec.controller.name,
-            parameters: parameters,
-            responses: spec.responses
-          };
-          var pathName = swaggerDoc.convertToSwagger(spec.path);
-          paths[pathName] = operation;
         }
+
+        /*if (spec.meta.auth) {
+         parameters.push({
+         name: 'Authorization',
+         type: 'string',
+         required: true,
+         in: 'header',
+         description: 'access token or refresh token'
+         });
+         }*/
+
+        paths[pathName][spec.method.toLowerCase()] = {
+          tags: spec.swagger.tags,
+          summary: spec.swagger.summary,
+          description: spec.swagger.description,
+          consumes: spec.swagger.consumes || [],
+          produces: spec.swagger.produces || [],
+          operationId: spec.controller.action,
+          "x-swagger-router-controller": spec.controller.name,
+          parameters: parameters,
+          responses: spec.responses
+        };
       }
     });
 
