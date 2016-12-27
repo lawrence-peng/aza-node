@@ -53,7 +53,7 @@ module.exports = function Aza() {
       }
       if (arg instanceof aza.BizError) {
         arg.body = {
-          "code": 0,
+          "code": arg.code,
           "message": arg.message
         };
         if (arg.data) {
@@ -61,10 +61,18 @@ module.exports = function Aza() {
         }
       } else if (arg instanceof Error) {
         console.error('beforeSend:', arg);
-        arg.body = {
-          "code": "InternalServerError",
-          "message": "接口异常!"
-        };
+        if (arg.failedValidation) {
+          arg.body = {
+            code: arg.code,
+            message: arg.message,
+            paramName: arg.paramName
+          };
+        } else {
+          arg.body = {
+            "code": "InternalServerError",
+            "message": "接口异常!"
+          };
+        }
       }
     });
 
