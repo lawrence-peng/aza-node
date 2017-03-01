@@ -15,9 +15,9 @@ conf.defaults = {
     name: 'slimorderServer',
     salt: '123456789abcdefg',
     routePath: '../routes',
-    title: '食趣点餐api服务',
+    title: '测试api服务',
     modules: [{name: 'order', controller: 'order'}],
-    description: '食趣点餐api服务',
+    description: '测试api服务',
     api_basePath: '/node'
 };
 

@@ -3,9 +3,9 @@
  */
 module.exports = function () {
     this.getList = function *() {
-        //console.log(this.requestParams)
+        console.log(this.requestParams)
         //throw new aza.restify.InternalServerError('接口异常1111111111!');
-        return 'hello aza';
+        return {createdAt: new Date()};
     }
     this.add = function *() {
         throw new aza.BizError('增加失败!');

@@ -27,6 +27,13 @@ var routes = [
                 shopID: joi.number().integer().required().description('店铺ID')
             })
         },
+        responseNormalization: {
+            enable: true,
+            caseType: 'snakeCase',
+            adapterMapping: {
+                createdAt: 'addDate'
+            }
+        },
         responses: {
             200: {
                 description: "操作成功",

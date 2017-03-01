@@ -1,6 +1,6 @@
 {
   "name": "aza-node",
-  "version": "0.4.36",
+  "version": "0.6.0",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {
@@ -21,10 +21,7 @@
   "author": "lawrence",
   "license": "ISC",
   "dependencies": {
-    "assert": "^1.4.1",
-    "cloneextend": "0.0.3",
     "co": "^4.6.0",
-    "crypto-js": "^3.1.6",
     "joi": "^8.0.5",
     "lodash": "^4.11.1",
     "moment": "^2.13.0",
@@ -33,8 +30,11 @@
     "swagger-tools": "*"
   },
   "devDependencies": {
+    "assert": "^1.4.1",
+    "cloneextend": "0.0.3",
     "dtrace-provider": "^0.6.0",
     "joi": "^8.4.2",
+    "jsonwebtoken": "^7.3.0",
     "request": "^2.74.0"
   }
 }

@@ -7,8 +7,9 @@ var request = require('request');
 
 describe('Aza Framework', function () {
     before(function () {
-        var a = new Aza({cwd: __dirname});
+        var a = new Aza({cwd: __dirname, responseNormalization: {enable: true}});
         a.initialize();
+        a.addNormalizationFormatter(require('./formatters/numberFormatter'))
         global.aza = a;
     })
     describe('#Table Request', function () {
@@ -30,7 +31,7 @@ describe('Aza Framework', function () {
                 if (err) {
                     //console.error(err);
                 }
-                assert.equal(body.message,'增加失败!')
+                assert.equal(body.message, '增加失败!')
                 done()
             });
         });
