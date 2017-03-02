@@ -11,15 +11,11 @@ module.exports = function Aza() {
 
     var formatterManager = new FormatterManager();
 
-    self.responseNormalization = {enable: true, formatterManager: null}
-
     self.initialize = function (options) {
         options = options || {};
-
-        options.responseNormalization = options.responseNormalization || {
-                enable: true,
-                formatterManager: formatterManager
-            }
+        options.responseNormalization = options.responseNormalization || {};
+        options.responseNormalization.enable = options.responseNormalization.enable || true;
+        options.responseNormalization.formatterManager = options.responseNormalization.formatterManager || formatterManager;
 
         self.bootstrap(options);
         var apiDocs = self.compileApiDocs(options);

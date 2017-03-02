@@ -4,6 +4,7 @@
 var _ = require('lodash');
 
 module.exports = function (opts) {
+    var self = this;
     opts = opts || {};
     var mapping = opts.adapterMapping;
     var formatterManager = opts.formatterManager;
@@ -17,13 +18,13 @@ module.exports = function (opts) {
             var mappingResult = mapping(key, val);
             Object.assign(keyValueItem, mappingResult);
         } else {
-            if (mapping) {
+            if (mapping && mapping[key]) {
                 var newKey = mapping[key];
                 keyValueItem.key = newKey;
                 keyValueItem.val = val;
             }
         }
-        if(mapping){
+        if (mapping && mapping[key]) {
             delete item[key];
         }
         switch (caseType) {
@@ -51,7 +52,7 @@ module.exports = function (opts) {
                 var val = item[keys[i]];
                 if (val === null || val == undefined)continue;
                 if (isObject(val)) {
-                    this.process(val);
+                    self.process(val);
                 }
                 adapter(item, keys[i], val);
             }

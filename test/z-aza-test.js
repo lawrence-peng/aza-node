@@ -7,8 +7,8 @@ var request = require('request');
 
 describe('Aza Framework', function () {
     before(function () {
-        var a = new Aza({cwd: __dirname, responseNormalization: {enable: true}});
-        a.initialize();
+        var a = new Aza({cwd: __dirname});
+        a.initialize({responseNormalization: {enable: false}});
         a.addNormalizationFormatter(require('./formatters/numberFormatter'))
         global.aza = a;
     })
