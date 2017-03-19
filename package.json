@@ -1,6 +1,6 @@
 {
   "name": "aza-node",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "description": "api development framework of restify",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.coding.net/lawrencen/aza-node.git"
+    "url": "https://github.com/lawrence-peng/aza-node.git"
   },
   "keywords": [
     "nodejs",

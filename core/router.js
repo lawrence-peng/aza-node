@@ -51,7 +51,7 @@ var Router = {
                 var data = yield actionFunc.call(controller);
 
                 var globalResponseNormalization = self.options.responseNormalization || {};
-                if (globalResponseNormalization.enable) {
+                if (globalResponseNormalization.enable && (data !== null || data !== undefined)) {
                     route.responseNormalization = route.responseNormalization || {};
                     var enableNormalization = route.responseNormalization.enable || true;
                     if (enableNormalization) {

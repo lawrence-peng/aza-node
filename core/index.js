@@ -14,8 +14,9 @@ module.exports = function Aza() {
     self.initialize = function (options) {
         options = options || {};
         options.responseNormalization = options.responseNormalization || {};
-        options.responseNormalization.enable = options.responseNormalization.enable || true;
-        options.responseNormalization.formatterManager = options.responseNormalization.formatterManager || formatterManager;
+        if (options.responseNormalization.enable) {
+            options.responseNormalization.formatterManager = options.responseNormalization.formatterManager || formatterManager;
+        }
 
         self.bootstrap(options);
         var apiDocs = self.compileApiDocs(options);
